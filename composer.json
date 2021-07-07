@@ -1,0 +1,12 @@
+{
+  "name": "langdonglei/notice",
+  "require": {
+    "guzzlehttp/guzzle": "^7.3",
+    "symfony/mailer": "^5.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "langdonglei\\": "src"
+    }
+  }
+}
