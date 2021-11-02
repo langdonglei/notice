@@ -10,12 +10,14 @@ class Ding
 {
     /**
      * @param string $token
+     * @param string $keyword
      * @param string $message
+     * @return string
      * @throws GuzzleException
      */
-    public static function send(string $token, string $message)
+    public static function send(string $token, string $keyword, string $message = 'default message'): string
     {
-        (new Client([
+        return (new Client([
             'timeout'     => 60,
             'verify'      => false,
             'http_errors' => false,
@@ -23,9 +25,9 @@ class Ding
             'json' => [
                 "msgtype" => "text",
                 "text"    => [
-                    "content" => 'KEUN8180  :  ' . $message,
+                    "content" => "$keyword : $message",
                 ]
             ]
-        ]);
+        ])->getBody()->getContents();
     }
 }

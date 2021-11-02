@@ -7,6 +7,12 @@
   "autoload": {
     "psr-4": {
       "langdonglei\\": "src"
+    },
+    "psr-0": {
+      "test": "tests"
     }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5"
   }
 }
