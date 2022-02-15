@@ -13,46 +13,51 @@ use Throwable;
 
 class Notice
 {
+    private Client $client;
+
+    public function __construct()
+    {
+        $this->client = new Client([
+            'timeout'     => 60,
+            'verify'      => false,
+            'http_errors' => false,
+        ]);
+    }
+
     /**
      * @throws Throwable
      */
     public function ding($message): string
     {
-        if (!isset($_ENV['NOTICE_TOKEN'])) {
-            throw new Exception('no env NOTICE_TOKEN');
-        }
-        if (!isset($_ENV['NOTICE_KEYWORD'])) {
-            throw new Exception('no env NOTICE_KEYWORD');
-        }
-        $token   = $_ENV['NOTICE_TOKEN'];
-        $keyword = $_ENV['NOTICE_KEYWORD'];
+        $_ENV['NOTICE_DING_TOKEN'] ?? throw new Exception('no env NOTICE_DING_TOKEN');
+        $_ENV['NOTICE_DING_KEYWORD'] ?? throw new Exception('no env NOTICE_DING_KEYWORD');
 
-        $client = new Client([
-            'timeout'     => 60,
-            'verify'      => false,
-            'http_errors' => false,
-        ]);
-
-        return $client->post("https://oapi.dingtalk.com/robot/send?access_token=$token", [
+        return $this->client->post("https://oapi.dingtalk.com/robot/send?access_token={$_ENV['NOTICE_DING_TOKEN']}", [
             'json' => [
                 "msgtype" => "text",
                 "text"    => [
-                    "content" => "$keyword : $message",
+                    "content" => "{$_ENV['NOTICE_DING_KEYWORD']} : $message",
                 ]
             ]
         ])->getBody()->getContents();
     }
 
-    public static function mail(string $dsn, string $message)
+    /**
+     * @throws Throwable
+     */
+    public function mail($message)
     {
-        preg_match('|smtp://(.+):.+smtp\.(.+):|U', $dsn, $match);
-        $from = $match[1] . '@' . $match[2];
+        $_ENV['NOTICE_MAIL_DSN'] ?? throw new Exception('no env NOTICE_MAIL_DSN example->smtp://user:pass@smtp.sina.com:25');
+        $_ENV['NOTICE_MAIL_TO'] ?? throw new Exception('no env NOTICE_MAIL_TO');
 
-        $transport = Transport::fromDsn($dsn);
+        preg_match('|smtp://(.+):.+smtp\.(.+):|U', $_ENV['NOTICE_MAIL_DSN'], $matches);
+
+        $from      = $matches[1] . '@' . $matches[2];
+        $transport = Transport::fromDsn($_ENV['NOTICE_MAIL_DSN']);
         $mailer    = new Mailer($transport);
         $email     = new Email();
         $email->from($from);
-        $email->to('langdonglei@icloud.com');
+        $email->to($_ENV['NOTICE_MAIL_TO']);
         $email->text($message);
         $mailer->send($email);
     }
